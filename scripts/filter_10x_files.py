@@ -1,0 +1,85 @@
+"""Filter downloaded 10-X files down to the 10-K set.
+
+The script walks a target directory recursively and deletes any file whose
+name contains ``10-Q`` or ``10-K-A``.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import sys
+from pathlib import Path
+
+
+REMOVE_MARKERS = ("10-Q", "10-K-A")
+PROJECT_ROOT = Path(os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..")))
+DATA_ROOT = PROJECT_ROOT / "data"
+
+
+def should_remove_file(file_path: Path) -> bool:
+    """Return True when a file should be removed from the dataset."""
+
+    file_name = file_path.name.upper()
+    return any(marker in file_name for marker in REMOVE_MARKERS)
+
+
+def filter_10x_files(root_path: str | Path) -> tuple[int, int, int]:
+    """Remove files that are not part of the 10-K-only dataset.
+
+    Returns a tuple with the number of removed files, the number of files
+    inspected, and the number of files kept.
+    """
+
+    root = Path(root_path)
+    removed_count = 0
+    inspected_count = 0
+
+    if not root.exists():
+        raise FileNotFoundError(f"Target folder does not exist: {root}")
+
+    for file_path in root.rglob("*"):
+        if not file_path.is_file():
+            continue
+
+        inspected_count += 1
+        if should_remove_file(file_path):
+            file_path.unlink()
+            removed_count += 1
+
+    kept_count = inspected_count - removed_count
+    return removed_count, inspected_count, kept_count
+
+
+def print_filter_summary(scanned_count: int, removed_count: int, kept_count: int) -> None:
+    """Print a short summary of the filter run."""
+
+    print(f"Scanned {scanned_count} files.")
+    print(f"Deleted {removed_count} files.")
+    print(f"Kept {kept_count} files.")
+
+
+def build_argument_parser() -> argparse.ArgumentParser:
+    """Build the command-line interface for the script."""
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "root_path",
+        nargs="?",
+        default=DATA_ROOT,
+        help="Root folder containing the cleaned 10-X files.",
+    )
+    return parser
+
+
+def main() -> None:
+    """Run the file filter against the chosen data folder."""
+
+    parser = build_argument_parser()
+    args = parser.parse_args()
+    removed_count, inspected_count, kept_count = filter_10x_files(args.root_path)
+    print_filter_summary(inspected_count, removed_count, kept_count)
+
+
+if __name__ == "__main__":
+    main()
