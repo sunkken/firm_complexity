@@ -17,6 +17,16 @@ PROJECT_ROOT = Path(os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "
 DATA_ROOT = PROJECT_ROOT / "data"
 
 
+def print_progress(current_index: int, total_count: int) -> None:
+    """Print a compact one-line progress bar."""
+
+    bar_width = 24
+    filled_width = int(bar_width * current_index / total_count) if total_count else bar_width
+    bar = "#" * filled_width + "-" * (bar_width - filled_width)
+    percent = int(100 * current_index / total_count) if total_count else 100
+    print(f"\r[{bar}] {percent:3d}%", end="", flush=True)
+
+
 def should_remove_file(file_path: Path) -> bool:
     """Return True when a file should be removed from the dataset."""
 
@@ -38,14 +48,21 @@ def filter_10x_files(root_path: str | Path) -> tuple[int, int, int]:
     if not root.exists():
         raise FileNotFoundError(f"Target folder does not exist: {root}")
 
-    for file_path in root.rglob("*"):
-        if not file_path.is_file():
-            continue
+    folders = [root, *[path for path in root.rglob("*") if path.is_dir()]]
 
-        inspected_count += 1
-        if should_remove_file(file_path):
-            file_path.unlink()
-            removed_count += 1
+    for index, folder in enumerate(folders, start=1):
+        print_progress(index - 1, len(folders))
+        for file_path in folder.iterdir():
+            if not file_path.is_file():
+                continue
+
+            inspected_count += 1
+            if should_remove_file(file_path):
+                file_path.unlink()
+                removed_count += 1
+
+    print_progress(len(folders), len(folders))
+    print()
 
     kept_count = inspected_count - removed_count
     return removed_count, inspected_count, kept_count
