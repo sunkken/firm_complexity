@@ -1,0 +1,84 @@
+{
+  "finance": {
+    "description": "Financial instruments and structures",
+    "words": [
+      "leases",
+      "collateral",
+      "convertible",
+      "leasehold",
+      "floating",
+      "collateralization",
+      "lessors",
+      "revaluation",
+      "securitizations",
+      "securitized",
+      "subleases"
+    ]
+  },
+  "legal": {
+    "description": "Legal and regulatory terms",
+    "words": [
+      "litigation",
+      "covenants",
+      "licensing",
+      "infringement",
+      "lawsuits",
+      "covenant",
+      "lawsuit",
+      "revocation"
+    ]
+  },
+  "accounting": {
+    "description": "Accounting and financial reporting terms",
+    "words": [
+      "carryforwards",
+      "intangibles",
+      "reclassified",
+      "carryforward",
+      "accrues",
+      "bankruptcies",
+      "carryback",
+      "subsidy"
+    ]
+  },
+  "hedging": {
+    "description": "Hedging and derivatives terms",
+    "words": [
+      "derivative",
+      "derivatives",
+      "hedges",
+      "swaps",
+      "hedged",
+      "counterparties",
+      "counterparty"
+    ]
+  },
+  "international": {
+    "description": "International and cross-border terms",
+    "words": [
+      "internationalglobal",
+      "worldwide",
+      "complex",
+      "repatriate",
+      "repatriated",
+      "repatriation",
+      "sovereign"
+    ]
+  },
+  "org_form": {
+    "description": "Organizational form and structure terms",
+    "words": [
+      "segments",
+      "entities",
+      "affiliates",
+      "restructuring",
+      "ventures",
+      "mergers",
+      "merging",
+      "outsource",
+      "partnering",
+      "restructure",
+      "restructured"
+    ]
+  }
+}

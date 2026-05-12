@@ -14,7 +14,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 
-REMOVE_MARKERS = ("10-Q", "10-K-A")
+REMOVE_MARKERS = ("10-Q", "10Q", "10-K-A")
 PROJECT_ROOT = Path(os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..")))
 DATA_ROOT = PROJECT_ROOT / "data"
 
@@ -54,6 +54,8 @@ def filter_10x_files(data_root_path: str | Path) -> tuple[int, int, int]:
                 rel = folder.relative_to(data_root)
                 if rel.parts:
                     top_name = rel.parts[0]
+                    if top_name.lower() == "raw" and len(rel.parts) > 1:
+                        top_name = rel.parts[1]
             except Exception:
                 top_name = "root"
 

@@ -1,1 +1,3 @@
 tqdm
+pyspark>=3.4.0
+pandas>=1.5.0
