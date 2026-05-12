@@ -1,1 +1,4 @@
-# Project currently uses only the Python standard library.
+tqdm
+pyspark==4.0.0
+pandas>=3.0.0
+pyarrow>=16.0.0

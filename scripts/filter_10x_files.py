@@ -11,8 +11,10 @@ import os
 import sys
 from pathlib import Path
 
+from tqdm import tqdm
 
-REMOVE_MARKERS = ("10-Q", "10-K-A")
+
+REMOVE_MARKERS = ("10-Q", "10Q", "10-K-A")
 PROJECT_ROOT = Path(os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), "..")))
 DATA_ROOT = PROJECT_ROOT / "data"
 
@@ -24,28 +26,48 @@ def should_remove_file(file_path: Path) -> bool:
     return any(marker in file_name for marker in REMOVE_MARKERS)
 
 
-def filter_10x_files(root_path: str | Path) -> tuple[int, int, int]:
+def filter_10x_files(data_root_path: str | Path) -> tuple[int, int, int]:
     """Remove files that are not part of the 10-K-only dataset.
+
+    `data_root_path` should point to the project `data/` folder. The function
+    walks that folder and its subfolders and removes files matching
+    `REMOVE_MARKERS`. The first-level subfolder name (e.g., year) is used in
+    the progress label.
 
     Returns a tuple with the number of removed files, the number of files
     inspected, and the number of files kept.
     """
 
-    root = Path(root_path)
+    data_root = Path(data_root_path)
     removed_count = 0
     inspected_count = 0
 
-    if not root.exists():
-        raise FileNotFoundError(f"Target folder does not exist: {root}")
+    if not data_root.exists():
+        raise FileNotFoundError(f"Target folder does not exist: {data_root}")
 
-    for file_path in root.rglob("*"):
-        if not file_path.is_file():
-            continue
+    folders = [data_root, *[path for path in data_root.rglob("*") if path.is_dir()]]
 
-        inspected_count += 1
-        if should_remove_file(file_path):
-            file_path.unlink()
-            removed_count += 1
+    with tqdm(folders, desc="Filtering", unit="folder") as progress:
+        for folder in progress:
+            top_name = "root"
+            try:
+                rel = folder.relative_to(data_root)
+                if rel.parts:
+                    top_name = rel.parts[0]
+                    if top_name.lower() == "raw" and len(rel.parts) > 1:
+                        top_name = rel.parts[1]
+            except Exception:
+                top_name = "root"
+
+            progress.set_postfix_str(top_name)
+            for file_path in folder.iterdir():
+                if not file_path.is_file():
+                    continue
+
+                inspected_count += 1
+                if should_remove_file(file_path):
+                    file_path.unlink()
+                    removed_count += 1
 
     kept_count = inspected_count - removed_count
     return removed_count, inspected_count, kept_count
@@ -67,7 +89,7 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "root_path",
         nargs="?",
         default=DATA_ROOT,
-        help="Root folder containing the cleaned 10-X files.",
+        help="Path to the project data folder (e.g. project_root/data).",
     )
     return parser
 
