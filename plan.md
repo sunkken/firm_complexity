@@ -43,5 +43,8 @@ Current status:
 ## Project Structure
 
 - `data/` for downloaded source files and intermediate outputs. This folder stays git-ignored.
-- `scripts/` for project scripts and helpers.
-- `main.py` as the root orchestration entry point.
+- `scripts/` for project scripts:
+  - `preprocess_year_tokenize.py` — Stage 1: tokenize raw 10-K files to token counts (run per year)
+  - `count_financial_words.py` — Stage 2: extract financial keyword counts from tokenized data (run per year)
+  - `combine_financial_word_counts.py` — Merge all yearly outputs into a single CSV
+- `word_categories.json` — Keyword definitions for Stage 2 (edit to change keyword mappings)
