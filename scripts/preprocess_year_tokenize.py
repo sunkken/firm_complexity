@@ -14,6 +14,7 @@ Output: `data/intermediate/tokenized_<year>.parquet`
 
 Notes:
 - BATCH_SIZE controls how many files are processed per write; increase it for fewer writes, decrease it to lower RAM usage.
+- TOKEN_PATTERN defines how text is tokenized; currently it captures lowercase alphanumeric tokens of length > 1 that are not purely digits.
 """
 
 from __future__ import annotations
@@ -33,7 +34,7 @@ from tqdm import tqdm
 
 
 BATCH_SIZE = 100
-
+TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
 
 def resolve_year_root(year: int, source_root: str = "data/raw") -> Path:
     return Path(source_root) / str(year)
@@ -46,10 +47,6 @@ def read_file_text(filepath: str) -> str:
     except Exception as e:
         print(f"Error reading {filepath}: {e}", file=sys.stderr)
         return ""
-
-
-TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
-
 
 def tokenize_and_count(text: str) -> tuple[dict[str, int], int]:
     if not text:
