@@ -31,7 +31,10 @@ Replicate the firm complexity workflow from the source paper and adjust it for o
   - [x] Create word category mapping file (`word_categories.json`) for downstream analysis.
 - [x] Add a small helper to combine yearly parquet outputs into one CSV when needed.
 - [x] Create script to convert parquet output to CSV format (customer preferred).
-- [ ] Add additional implementation steps once word count extraction is in place.
+- [ ] Add next-stage transformations for final complexity measures.
+  - [ ] Scale each target word by total word count.
+  - [ ] Calculate the 75th percentile for each word.
+  - [ ] Rank each word within its word group.
 
 Current status: 
 - **Pipeline Complete**: Stage 1 tokenization, Stage 2 word counting, and CSV combiner all implemented and tested.
