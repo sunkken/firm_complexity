@@ -46,7 +46,7 @@ def main() -> None:
     parser.add_argument("years", nargs="+", type=str, help="Years or ranges to process (e.g. 2022 2015-2019)")
     parser.add_argument("--intermediate", default="data/intermediate", help="Intermediate folder path (default: data/intermediate)")
     parser.add_argument("--output", default="output", help="Output folder path (default: output)")
-    parser.add_argument("--batch-size", type=int, default=256, help="Number of parquet rows to process per batch (default: 256)")
+    parser.add_argument("--batch-size", type=int, default=2000, help="Number of parquet rows to process per batch (default: 2000)")
     parser.add_argument("--word-categories", default="word_categories.json", help="Path to the word category JSON file (default: word_categories.json)")
     parser.add_argument("--output-csv", default="output/financial_word_counts.csv", help="Combined CSV path written after Stage 2 completes (default: output/financial_word_counts.csv)")
     parser.add_argument("--no-combine", action="store_true", help="Do not run the combine (Stage 3) step after counting")

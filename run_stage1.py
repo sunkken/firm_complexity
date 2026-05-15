@@ -44,7 +44,7 @@ def main() -> None:
     parser.add_argument("years", nargs="+", type=str, help="Years or ranges to process (e.g. 2022 2015-2019)")
     parser.add_argument("--source-root", default="data/raw", help="Root folder containing raw year folders (default: data/raw)")
     parser.add_argument("--intermediate", default="data/intermediate", help="Intermediate output folder path (default: data/intermediate)")
-    parser.add_argument("--batch-size", type=int, default=100, help="Number of files to process per batch (default: 100)")
+    parser.add_argument("--batch-size", type=int, default=200, help="Number of files to process per batch (default: 200)")
     parser.add_argument("--target-file-mb", type=int, default=256, help="Target size (MB) per output file after compaction (default: 256)")
 
     args = parser.parse_args()
