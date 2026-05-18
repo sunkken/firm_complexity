@@ -131,8 +131,28 @@ def process_year(
 
     print("Using Stage 1 token_counts column\n")
 
-    read_columns = ["filename", "filepath", "year", "total_words", "processed_date", "token_counts"]
-    output_columns = ["filename", "filepath", "year", "total_words", "processed_date", *keyword_columns]
+    read_columns = [
+        "filename",
+        "filepath",
+        "form_type",
+        "processed_date",
+        "cik",
+        "filing_date",
+        "period_end_date",
+        "total_words",
+        "token_counts",
+    ]
+    output_columns = [
+        "filename",
+        "filepath",
+        "form_type",
+        "processed_date",
+        "cik",
+        "filing_date",
+        "period_end_date",
+        "total_words",
+        *keyword_columns,
+    ]
 
     writer: pq.ParquetWriter | None = None
     written_rows = 0
@@ -159,9 +179,12 @@ def process_year(
             output_record = {
                 "filename": row.filename,
                 "filepath": row.filepath,
-                "year": int(row.year),
-                "total_words": int(row.total_words),
+                "form_type": getattr(row, "form_type", ""),
                 "processed_date": row.processed_date,
+                "cik": getattr(row, "cik", None),
+                "filing_date": getattr(row, "filing_date", ""),
+                "period_end_date": getattr(row, "period_end_date", ""),
+                "total_words": int(row.total_words),
             }
             output_record.update(row_counts)
             output_records.append(output_record)

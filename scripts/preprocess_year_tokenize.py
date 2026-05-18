@@ -10,7 +10,7 @@ This script:
 - Compacts the intermediate parquet files to target file sizes (snappy)
 
 Output: `data/intermediate/tokenized_<year>.parquet`
-    - filename, filepath, year, total_words, token_counts, processed_date
+    - filename, filepath, year, filing_date, form_type, cik, total_words, token_counts, period_end_date, processed_date
 
 Notes:
 - BATCH_SIZE controls how many files are processed per write; increase it for fewer writes, decrease it to lower RAM usage.
@@ -36,6 +36,9 @@ from tqdm import tqdm
 BATCH_SIZE = 100
 TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
 
+PERIOD_END_DATE_PATTERN = re.compile(r"CONFORMED PERIOD OF REPORT:\s*(\d{8})", re.IGNORECASE)
+FILENAME_METADATA_PATTERN = re.compile(r"^(\d{8})_([^_]+)_edgar_data_(\d+)_")
+
 def resolve_year_root(year: int, source_root: str = "data/raw") -> Path:
     return Path(source_root) / str(year)
 
@@ -58,6 +61,29 @@ def tokenize_and_count(text: str) -> tuple[dict[str, int], int]:
 
     token_counts = Counter(tokens)
     return dict(token_counts), len(tokens)
+
+
+def extract_period_end_date(text: str) -> str:
+    if not text:
+        return ""
+
+    header_text = text[:20000]
+    match = PERIOD_END_DATE_PATTERN.search(header_text)
+    if not match:
+        return ""
+
+    raw_date = match.group(1)
+    return f"{raw_date[:4]}-{raw_date[4:6]}-{raw_date[6:8]}"
+
+
+def extract_filename_metadata(filename: str) -> tuple[str, str, int]:
+    match = FILENAME_METADATA_PATTERN.match(filename)
+    if not match:
+        return "", "", -1
+
+    filing_date_raw, form_type, cik_raw = match.groups()
+    filing_date = f"{filing_date_raw[:4]}-{filing_date_raw[4:6]}-{filing_date_raw[6:8]}"
+    return filing_date, form_type, int(cik_raw)
 
 
 def chunked(items: list[Path], batch_size: int):
@@ -136,15 +162,21 @@ def process_year(
                 skipped_rows += 1
                 continue
 
+            period_end_date = extract_period_end_date(text)
+            filing_date, form_type, cik = extract_filename_metadata(filepath.name)
+
             filepath_abs = filepath.resolve()
             batch_records.append(
                 {
                     "filename": filepath.name,
                     "filepath": str(filepath_abs.relative_to(Path.cwd().resolve())).replace("\\", "/"),
-                    "year": year,
+                    "form_type": form_type,
+                    "processed_date": datetime.now().isoformat(),
+                    "cik": cik,
+                    "filing_date": filing_date,
+                    "period_end_date": period_end_date,
                     "total_words": total_words,
                     "token_counts": token_counts,
-                    "processed_date": datetime.now().isoformat(),
                 }
             )
 

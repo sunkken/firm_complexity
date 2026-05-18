@@ -1,7 +1,7 @@
 """Filter downloaded 10-X files down to the 10-K set.
 
 The script walks a target directory recursively and deletes any file whose
-name contains ``10-Q`` or ``10-K-A``.
+name contains ``10-Q``, ``10Q`` or ``10-K-A``.
 """
 
 from __future__ import annotations
